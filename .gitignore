@@ -16,3 +16,8 @@ env/
 # OS / editor
 .DS_Store
 .vscode/
+
+# Large / regenerable data — kept on disk, NOT uploaded.
+# (Olist CSVs are re-downloadable from Kaggle; .db files are rebuilt by the scripts.)
+*.db
+expense_tracker/olist_*.csv
