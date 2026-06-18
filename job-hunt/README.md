@@ -26,19 +26,23 @@ Reuses my own `fetch_jobs.py` (Remotive API) and prints ranked remote roles.
 | `sweep-logs/` | **One file per run** (`sweep-YYYY-MM-DD.md`) — the full results of that sweep |
 | `sweep_remote.py` | The remote-jobs leg — reuses my Remotive API client and ranks results against my skills |
 
-## Curated sources (clickable any time)
+## Sources covered (every sweep lists which ones had results)
 
-Pune Data Analyst searches, pre-filtered:
-- **Naukri:** https://www.naukri.com/data-analyst-jobs-in-pune
-- **LinkedIn:** https://www.linkedin.com/jobs/search/?keywords=Data%20Analyst&location=Pune
-- **Indeed:** https://in.indeed.com/jobs?q=Data+Analyst&l=Pune
-- **Foundit:** https://www.foundit.in/srp/results?query=data%20analyst&locations=Pune
-- **Instahyre:** https://www.instahyre.com/data-analyst-jobs-in-pune/
-- **Cutshort:** https://cutshort.io/jobs/data-analyst-jobs-in-pune
-- **Hirist:** https://www.hirist.tech/
-- **Wellfound (startups):** https://wellfound.com/role/r/data-analyst
-- **Internshala (fresher):** https://internshala.com/jobs/data-analyst-jobs-in-pune/
-- **Remote feed:** Remotive API via `sweep_remote.py`
+The sweep works through **all** of these each run and reports ✅/➖/⚠️ per source. Advanced queries (boolean, ATS X-ray, recency, Pune micro-markets) are used — not just plain title searches.
+
+**A. Indian general boards** — [Naukri](https://www.naukri.com/data-analyst-jobs-in-pune) · [LinkedIn](https://in.linkedin.com/jobs/data-analyst-jobs-pune) · [Indeed](https://in.indeed.com/q-data-analyst-l-pune,-maharashtra-jobs.html) · [Foundit](https://www.foundit.in/srp/results?query=data%20analyst&locations=Pune) · [Glassdoor](https://www.glassdoor.co.in/Job/pune-data-analyst-jobs-SRCH_IL.0,4_IC2856202_KO5,17.htm) · [Shine](https://www.shine.com/job-search/data-analyst-jobs-in-pune) · [SimplyHired](https://www.simplyhired.co.in/search?q=data+analyst&l=pune) · TimesJobs
+
+**B. Tech / startup** — [Wellfound](https://wellfound.com/role/l/data-analyst/india) · [Cutshort](https://cutshort.io/jobs/data-analyst-jobs-in-pune) · [Instahyre](https://www.instahyre.com/data-analyst-jobs-in-pune/) · [Hirist](https://www.hirist.tech/c/data-analytics-bi-jobs) · [YC Work at a Startup](https://www.workatastartup.com/)
+
+**C. Fresher / internship** — [Internshala](https://internshala.com/jobs/data-analyst-jobs-in-pune/) · [Indeed fresher](https://in.indeed.com/q-fresher-data-analyst-l-pune,-maharashtra-jobs.html) · [Built In Pune](https://builtinpune.in/jobs/data-analytics/search/data-analyst)
+
+**D. Remote** — Remotive (via `sweep_remote.py`) · [RemoteOK](https://remoteok.com/remote-data-analyst-jobs) · [We Work Remotely](https://weworkremotely.com/remote-jobs/search?term=data+analyst) · [Working Nomads](https://www.workingnomads.com/jobs?category=data) · [Remote Rocketship](https://www.remoterocketship.com/country/india/jobs/data-analyst)
+
+**E. Company ATS X-ray** — Greenhouse, Lever, Workday, Ashby, SmartRecruiters (e.g. `site:boards.greenhouse.io data analyst India`)
+
+**F. Direct Pune-employer careers** — Barclays, Citi, ZS Associates, Wipro, Infosys, TCS, Persistent, Mastercard, Vanguard, UBS, Deutsche Bank, John Deere, Cummins, Eaton, FIS, Synechron, PubMatic, Druva
+
+**G. Aggregators / community** — Google for Jobs (`data analyst Pune`) · X/Twitter hiring posts
 
 ## How ranking works
 1. **Title tier** — exact *Data Analyst* first, then analyst family (Business/BI/MIS/Reporting Analyst, Data/Analytics), then any role matching my skills.
