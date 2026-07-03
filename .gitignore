@@ -21,3 +21,12 @@ env/
 # (Olist CSVs are re-downloadable from Kaggle; .db files are rebuilt by the scripts.)
 *.db
 expense_tracker/olist_*.csv
+
+# Personal / private — NEVER push to the PUBLIC repo (contains PII: full name, phone,
+# email, job applications, referral contacts, private learning notes).
+resume/
+job-hunt/
+memory/
+sessions/
+companies/
+resources/
