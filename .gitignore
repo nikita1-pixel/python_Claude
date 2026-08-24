@@ -20,6 +20,7 @@ env/
 # Large / regenerable data — kept on disk, NOT uploaded.
 # (Olist CSVs are re-downloadable from Kaggle; .db files are rebuilt by the scripts.)
 *.db
+*.duckdb
 expense_tracker/olist_*.csv
 
 # Personal / private — NEVER push to the PUBLIC repo (contains PII: full name, phone,
@@ -30,3 +31,6 @@ memory/
 sessions/
 companies/
 resources/
+
+# Apache Superset (local BI tool, not project code)
+superset/

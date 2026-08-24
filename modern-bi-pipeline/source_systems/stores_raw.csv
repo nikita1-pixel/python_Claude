@@ -1,0 +1,9 @@
+store_id,store_name,city,region,local_currency
+1,NovaMart Pune,Pune,West,INR
+2,NovaMart Mumbai,Mumbai,West,INR
+3,NovaMart Delhi,Delhi,North,INR
+4,NovaMart Bangalore,Bangalore,South,INR
+5,NovaMart Chennai,Chennai,,INR
+6,NovaMart Dubai,Dubai,Intl,AED
+7,NovaMart London,London,Intl,GBP
+8,NovaMart Singapore,Singapore,Intl,SGD
