@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Remote Job Market Analyzer — Case Study · Nirmala Choudhary</title>
+<meta name="description" content="A deployed Streamlit app that pulls live remote-job data from a REST API into an interactive, filterable dashboard." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#0a0e17;--panel:#111826;--panel-2:#0e1522;--line:rgba(255,255,255,.07);
+  --line-2:rgba(255,255,255,.12);--teal:#2dd4bf;--teal-deep:#14b8a6;--cyan:#38bdf8;
+  --amber:#fbbf24;--red:#f87171;--ink:#e8edf5;--muted:#94a3b8;--muted-2:#64748b;
+  --glow:0 0 0 1px rgba(45,212,191,.14), 0 18px 44px -20px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2{font-family:'Space Grotesk','Inter',sans-serif;letter-spacing:-.01em}
+a{color:var(--teal);text-decoration:none}
+.mono{font-family:'JetBrains Mono',monospace}
+.backdrop{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.glow{position:absolute;border-radius:50%;filter:blur(90px);opacity:.18}
+.g1{width:520px;height:520px;background:var(--teal);top:-200px;right:-140px}
+.g2{width:440px;height:440px;background:#8b5cf6;bottom:-180px;left:-160px;opacity:.12}
+.wrap{max-width:780px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+.topbar{padding:22px 0}
+.back{display:inline-flex;align-items:center;gap:8px;font-size:.86rem;color:var(--muted);font-weight:500;transition:.2s}
+.back:hover{color:var(--teal)}
+header{padding:14px 0 26px}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal)}
+.eyebrow::before{content:"// ";color:var(--teal-deep)}
+h1{font-size:clamp(1.9rem,5vw,2.6rem);font-weight:700;line-height:1.1;margin:14px 0 10px}
+.sub{color:var(--muted);font-size:1.02rem;max-width:44em}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:28px 0 4px}
+.kpi{background:var(--panel);padding:18px 16px}
+.kpi .n{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:1.35rem;line-height:1.1;color:var(--ink)}
+.kpi.good .n{color:var(--teal)}
+.kpi .l{font-size:.72rem;color:var(--muted);margin-top:7px}
+@media(max-width:640px){.kpis{grid-template-columns:1fr 1fr}}
+section.block{padding:24px 0;border-top:1px solid var(--line)}
+.block h2{font-size:1.2rem;display:flex;align-items:center;gap:10px;margin-bottom:13px}
+ul.pts{list-style:none;display:flex;flex-direction:column;gap:10px}
+ul.pts li{position:relative;padding-left:24px;font-size:.95rem}
+ul.pts li::before{content:"";position:absolute;left:2px;top:.6em;width:7px;height:7px;border-radius:2px;background:var(--teal);transform:rotate(45deg)}
+ul.pts li b{color:#fff;font-weight:600}
+ul.pts.change li::before{background:var(--amber)}
+.impact{background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.25);border-radius:14px;padding:16px 20px;margin-top:6px;font-size:.95rem}
+.impact b{color:var(--teal)}
+.links{display:flex;gap:12px;flex-wrap:wrap;padding:28px 0 10px;border-top:1px solid var(--line)}
+.lnk{display:inline-flex;align-items:center;gap:8px;font-size:.9rem;font-weight:600;padding:11px 18px;border-radius:11px;border:1px solid var(--line-2);color:var(--ink);transition:.22s}
+.lnk:hover{border-color:var(--teal);color:var(--teal);transform:translateY(-2px)}
+.lnk.primary{background:var(--teal);color:var(--bg);border-color:var(--teal)}
+.lnk.primary:hover{background:#5ee6d4;color:var(--bg)}
+footer{padding:38px 0;text-align:center;color:var(--muted-2);font-size:.82rem;border-top:1px solid var(--line);margin-top:18px}
+footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="backdrop"><span class="glow g1"></span><span class="glow g2"></span></div>
+<div class="wrap">
+  <div class="topbar"><a href="index.html" class="back">← Back to portfolio</a></div>
+
+  <header>
+    <span class="eyebrow">Case Study · Data App</span>
+    <h1>Remote Job Market Analyzer</h1>
+    <p class="sub">Where are the remote jobs, and which fit my skills — without refreshing five job boards? A live app that answers it on demand.</p>
+
+    <div class="kpis">
+      <div class="kpi good"><div class="n">Live</div><div class="l">deployed app</div></div>
+      <div class="kpi"><div class="n">REST API</div><div class="l">real-time data</div></div>
+      <div class="kpi"><div class="n">Filters</div><div class="l">search + category</div></div>
+      <div class="kpi"><div class="n">CSV</div><div class="l">one-click export</div></div>
+    </div>
+  </header>
+
+  <section class="block">
+    <h2>🔧 What I built</h2>
+    <ul class="pts">
+      <li>A <b>Streamlit</b> web app that pulls <b>live remote-job postings from a REST API</b> and parses the JSON into a clean table.</li>
+      <li><b>Interactive filters</b> (search term, category), <b>KPI cards</b>, and <b>Plotly charts</b> that update instantly.</li>
+      <li><b>One-click CSV export</b> of the filtered results, and <b>deployed live on Streamlit Cloud</b> — shareable by link.</li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>📊 What it shows I can do</h2>
+    <ul class="pts">
+      <li>Consume a <b>live REST API</b> and turn raw JSON into a usable dataset — the everyday reality of real data work.</li>
+      <li>Ship an <b>interactive, filterable dashboard</b>, not a static notebook — analysis anyone can explore themselves.</li>
+      <li>Take a project <b>all the way to deployment</b> — build, host, and share a working product.</li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>✅ Insights for change</h2>
+    <ul class="pts change">
+      <li>Turns a manual, repetitive job search into a <b>single self-serve dashboard</b>.</li>
+      <li>The same pattern — <b>API → filter → export</b> — powers any live-data monitoring tool a team needs.</li>
+      <li>Next iterations: cache calls for speed, add more job sources, and score postings against a target skill set.</li>
+    </ul>
+    <div class="impact"><b>The difference this makes:</b> it proves I don't just analyse a CSV someone hands me — I can pull live data and ship a working, deployed tool around it.</div>
+  </section>
+
+  <div class="links">
+    <a class="lnk primary" href="https://remote-job-market-analyzer-cpjacv845jkwymnerq27cl.streamlit.app/" target="_blank" rel="noopener">↗ Live app</a>
+    <a class="lnk" href="https://github.com/nikita1-pixel/remote-job-market-analyzer" target="_blank" rel="noopener">↗ Code</a>
+    <a class="lnk" href="index.html">← Back to portfolio</a>
+  </div>
+
+  <footer>Built by <a href="index.html">Nirmala Choudhary</a> — Data Analyst · Python · Streamlit · Plotly · REST API</footer>
+</div>
+</body>
+</html>

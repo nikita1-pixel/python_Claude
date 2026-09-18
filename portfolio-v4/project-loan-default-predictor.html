@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Loan-Default Predictor — Case Study · Nirmala Choudhary</title>
+<meta name="description" content="An ML model that scores a new loan's default risk, tuned on real cost trade-offs, with an AI layer that explains every prediction — deployed live." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏦</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#0a0e17;--panel:#111826;--panel-2:#0e1522;--line:rgba(255,255,255,.07);
+  --line-2:rgba(255,255,255,.12);--teal:#2dd4bf;--teal-deep:#14b8a6;--cyan:#38bdf8;
+  --amber:#fbbf24;--red:#f87171;--ink:#e8edf5;--muted:#94a3b8;--muted-2:#64748b;
+  --glow:0 0 0 1px rgba(45,212,191,.14), 0 18px 44px -20px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2{font-family:'Space Grotesk','Inter',sans-serif;letter-spacing:-.01em}
+a{color:var(--teal);text-decoration:none}
+.mono{font-family:'JetBrains Mono',monospace}
+.backdrop{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.glow{position:absolute;border-radius:50%;filter:blur(90px);opacity:.18}
+.g1{width:520px;height:520px;background:var(--teal);top:-200px;right:-140px}
+.g2{width:440px;height:440px;background:#8b5cf6;bottom:-180px;left:-160px;opacity:.12}
+.wrap{max-width:820px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+.topbar{padding:22px 0}
+.back{display:inline-flex;align-items:center;gap:8px;font-size:.86rem;color:var(--muted);font-weight:500;transition:.2s}
+.back:hover{color:var(--teal)}
+header{padding:14px 0 30px}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal)}
+.eyebrow::before{content:"// ";color:var(--teal-deep)}
+h1{font-size:clamp(1.9rem,5vw,2.7rem);font-weight:700;line-height:1.1;margin:14px 0 10px}
+.sub{color:var(--muted);font-size:1.02rem;max-width:44em}
+.cta{display:inline-flex;align-items:center;gap:8px;margin-top:18px;font-weight:600;font-size:.95rem;padding:12px 20px;border-radius:11px;background:var(--teal);color:var(--bg);box-shadow:0 12px 26px -12px rgba(45,212,191,.7)}
+.cta:hover{background:#5ee6d4;color:var(--bg)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:28px 0 8px}
+.kpi{background:var(--panel);padding:18px 16px}
+.kpi .n{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:1.4rem;line-height:1.1;color:var(--ink)}
+.kpi.good .n{color:var(--teal)}
+.kpi.risk .n{color:var(--red)}
+.kpi .l{font-size:.72rem;color:var(--muted);margin-top:7px}
+@media(max-width:640px){.kpis{grid-template-columns:1fr 1fr}}
+section.block{padding:26px 0;border-top:1px solid var(--line)}
+.block h2{font-size:1.25rem;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+ul.pts{list-style:none;display:flex;flex-direction:column;gap:11px}
+ul.pts li{position:relative;padding-left:24px;font-size:.96rem}
+ul.pts li::before{content:"";position:absolute;left:2px;top:.62em;width:7px;height:7px;border-radius:2px;background:var(--teal);transform:rotate(45deg)}
+ul.pts li b{color:#fff;font-weight:600}
+ul.pts.change li::before{background:var(--amber)}
+.flow{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow-x:auto}
+.impact{background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.25);border-radius:14px;padding:18px 22px;margin-top:8px}
+.impact b{color:var(--teal)}
+.links{display:flex;gap:12px;flex-wrap:wrap;padding:30px 0 10px;border-top:1px solid var(--line)}
+.lnk{display:inline-flex;align-items:center;gap:8px;font-size:.9rem;font-weight:600;padding:11px 18px;border-radius:11px;border:1px solid var(--line-2);color:var(--ink);transition:.22s}
+.lnk:hover{border-color:var(--teal);color:var(--teal);transform:translateY(-2px)}
+.lnk.primary{background:var(--teal);color:var(--bg);border-color:var(--teal)}
+.lnk.primary:hover{background:#5ee6d4;color:var(--bg)}
+footer{padding:40px 0;text-align:center;color:var(--muted-2);font-size:.82rem;border-top:1px solid var(--line);margin-top:20px}
+footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="backdrop"><span class="glow g1"></span><span class="glow g2"></span></div>
+
+<div class="wrap">
+  <div class="topbar"><a href="index.html" class="back">← Back to portfolio</a></div>
+
+  <header>
+    <span class="eyebrow">Case Study · Machine Learning + AI</span>
+    <h1>AI Loan-Default Predictor</h1>
+    <p class="sub">Can we predict — and *explain* — whether a new loan will default, before it's approved? An end-to-end ML model, tuned on real cost trade-offs, with an AI layer that explains every decision. Deployed live.</p>
+    <a class="cta" href="https://lending-club-credit-risk-r.streamlit.app/" target="_blank" rel="noopener">🏦 Try the live app →</a>
+
+    <div class="kpis">
+      <div class="kpi"><div class="n">1.3M</div><div class="l">loans trained on</div></div>
+      <div class="kpi good"><div class="n">~60%</div><div class="l">defaulters caught</div></div>
+      <div class="kpi"><div class="n">0.70</div><div class="l">ROC-AUC</div></div>
+      <div class="kpi good"><div class="n">Live</div><div class="l">+ AI-explained</div></div>
+    </div>
+  </header>
+
+  <section class="block">
+    <h2>📌 The problem</h2>
+    <ul class="pts">
+      <li>A dashboard tells you what <b>already happened</b>. A lender needs to score a <b>brand-new applicant</b> — before the outcome is known.</li>
+      <li>Goal: predict a single loan's default probability <b>and</b> explain <b>why</b>, so the decision is trustworthy and actionable.</li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>🔧 How I built it</h2>
+    <ul class="pts">
+      <li>Trained a <b>Logistic Regression</b> model on <b>1.3M real loans</b> using 8 features (interest rate, term, DTI, income, loan amount, utilization, open accounts, credit grade).</li>
+      <li>Encoded the A–G credit grade into numbers, scaled features, and used a <b>stratified 80/20 train/test split</b> so the model is tested on data it never saw.</li>
+      <li>Saved the trained model and deployed it as an interactive <b>Streamlit</b> app.</li>
+    </ul>
+    <div class="flow">raw loan → ML model → default-probability score → AI explains why → recommendation</div>
+  </section>
+
+  <section class="block">
+    <h2>📊 The key decision (this is the real analyst work)</h2>
+    <ul class="pts">
+      <li>At the default 0.5 cutoff: <b>79.9% accuracy</b> — but that's a <b>trap</b>. It equals the "always predict repaid" baseline, and caught only <b>7% of real defaulters</b>.</li>
+      <li>ROC-AUC of <b>0.70</b> showed the model <b>had real signal</b> — the problem was the threshold, not the model.</li>
+      <li>I tuned the cutoff to <b>0.20</b> based on the actual cost trade-off: a <b>missed default (~$10k)</b> costs far more than a <b>wrongly rejected good customer (~$1.5k)</b>. That lifted defaulters caught from 7% to <b>~60%</b>.</li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>🤖 The AI layer</h2>
+    <ul class="pts">
+      <li>A probability alone isn't a decision. The model's score + the loan's details are sent to an <b>LLM (Llama 3.3 via Groq)</b>, which writes a plain-English explanation and a recommendation.</li>
+      <li>Example output: <em>"83% default probability — high DTI (69%), low income ($16.9k), 30.9% rate and riskiest grade all point to a stretched borrower. Recommendation: reject."</em></li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>✅ What makes it stand out</h2>
+    <ul class="pts change">
+      <li>It's <b>predictive, not descriptive</b> — it scores a <b>new</b> loan, not a historical average.</li>
+      <li>It's <b>self-explaining</b> — anyone, technical or not, gets the <b>why</b> and a recommendation.</li>
+      <li>It's <b>honestly evaluated</b> — the threshold was chosen on business cost, and its limits are documented, not hidden.</li>
+    </ul>
+    <div class="impact"><b>The difference this makes:</b> it's a complete, deployed ML + AI product — from 1.3M raw loans to a live link anyone can try — built and understood end to end.</div>
+  </section>
+
+  <div class="links">
+    <a class="lnk primary" href="https://lending-club-credit-risk-r.streamlit.app/" target="_blank" rel="noopener">🏦 Try the live app</a>
+    <a class="lnk" href="https://github.com/nikita1-pixel/lending-club-credit-risk" target="_blank" rel="noopener">↗ Code</a>
+    <a class="lnk" href="index.html">← Back to portfolio</a>
+  </div>
+
+  <footer>Built by <a href="index.html">Nirmala Choudhary</a> — Data Analyst · Python · scikit-learn · Streamlit · LLM</footer>
+</div>
+</body>
+</html>

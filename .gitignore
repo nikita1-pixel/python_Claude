@@ -34,3 +34,27 @@ resources/
 
 # Apache Superset (local BI tool, not project code)
 superset/
+
+# Standalone sub-projects that have their OWN git repo (versioned separately,
+# e.g. deployed to their own GitHub repo) — don't nest them inside this repo.
+e-commerce/
+lending-club-analysis/
+Netflix_analysis/
+starbucks-analytics/
+
+# Large / regenerable datasets (multi-GB — keep on disk, NEVER push to GitHub)
+AI_Zomato/data/
+/jobs.csv
+/expenses.csv
+
+
+# nested repos (they have their own git)
+proxie-rust-ffi/
+full-stack-profile/
+ai-job-search/
+# private / data
+job-simmulation/
+data_exports/
+# never commit these anywhere
+**/node_modules/
+**/.env

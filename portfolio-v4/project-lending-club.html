@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lending Club Credit-Risk — Case Study · Nirmala Choudhary</title>
+<meta name="description" content="How I turned 1.3M real loans into $4.06B of quantified default risk — and the changes a credit team could act on." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#0a0e17;--panel:#111826;--panel-2:#0e1522;--line:rgba(255,255,255,.07);
+  --line-2:rgba(255,255,255,.12);--teal:#2dd4bf;--teal-deep:#14b8a6;--cyan:#38bdf8;
+  --amber:#fbbf24;--red:#f87171;--ink:#e8edf5;--muted:#94a3b8;--muted-2:#64748b;
+  --radius:16px;--maxw:820px;--glow:0 0 0 1px rgba(45,212,191,.14), 0 18px 44px -20px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{font-family:'Space Grotesk','Inter',sans-serif;letter-spacing:-.01em}
+.mono{font-family:'JetBrains Mono',monospace}
+a{color:var(--teal);text-decoration:none}
+img{max-width:100%;display:block;border-radius:12px}
+
+/* backdrop glows */
+.backdrop{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.glow{position:absolute;border-radius:50%;filter:blur(90px);opacity:.18}
+.g1{width:520px;height:520px;background:var(--teal);top:-200px;right:-140px}
+.g2{width:440px;height:440px;background:#8b5cf6;bottom:-180px;left:-160px;opacity:.12}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;position:relative;z-index:1}
+
+/* top bar */
+.topbar{padding:22px 0}
+.back{display:inline-flex;align-items:center;gap:8px;font-size:.86rem;color:var(--muted);font-weight:500;transition:.2s}
+.back:hover{color:var(--teal)}
+
+/* header */
+header{padding:14px 0 30px}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal)}
+.eyebrow::before{content:"// ";color:var(--teal-deep)}
+h1{font-size:clamp(1.9rem,5vw,2.7rem);font-weight:700;line-height:1.1;margin:14px 0 10px}
+.sub{color:var(--muted);font-size:1.02rem;max-width:44em}
+
+/* KPI row */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:30px 0 8px}
+.kpi{background:var(--panel);padding:18px 16px}
+.kpi .n{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:1.5rem;line-height:1;color:var(--ink)}
+.kpi.risk .n{color:var(--red)}
+.kpi.good .n{color:var(--teal)}
+.kpi .l{font-size:.72rem;color:var(--muted);margin-top:7px}
+@media(max-width:640px){.kpis{grid-template-columns:1fr 1fr}}
+
+/* sections */
+section.block{padding:26px 0;border-top:1px solid var(--line)}
+.block h2{font-size:1.25rem;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+ul.pts{list-style:none;display:flex;flex-direction:column;gap:11px}
+ul.pts li{position:relative;padding-left:24px;color:var(--ink);font-size:.96rem}
+ul.pts li::before{content:"";position:absolute;left:2px;top:.62em;width:7px;height:7px;border-radius:2px;background:var(--teal);transform:rotate(45deg)}
+ul.pts li b{color:#fff;font-weight:600}
+ul.pts.change li::before{background:var(--amber)}
+
+/* AI insight callout */
+.ai{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid rgba(45,212,191,.22);border-radius:14px;padding:20px 22px;box-shadow:var(--glow)}
+.ai .tag{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);margin-bottom:10px}
+.ai blockquote{color:var(--ink);font-size:.98rem;line-height:1.7;border-left:2px solid var(--teal);padding-left:16px;font-style:italic}
+.ai .flow{font-family:'JetBrains Mono',monospace;font-size:.76rem;color:var(--muted);margin-top:14px}
+
+/* impact banner */
+.impact{background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.25);border-radius:14px;padding:18px 22px;margin-top:8px}
+.impact b{color:var(--teal)}
+
+/* links row */
+.links{display:flex;gap:12px;flex-wrap:wrap;padding:30px 0 10px;border-top:1px solid var(--line)}
+.lnk{display:inline-flex;align-items:center;gap:8px;font-size:.9rem;font-weight:600;padding:11px 18px;border-radius:11px;border:1px solid var(--line-2);color:var(--ink);transition:.22s}
+.lnk:hover{border-color:var(--teal);color:var(--teal);transform:translateY(-2px)}
+.lnk.primary{background:var(--teal);color:var(--bg);border-color:var(--teal)}
+.lnk.primary:hover{background:#5ee6d4;color:var(--bg)}
+
+footer{padding:40px 0;text-align:center;color:var(--muted-2);font-size:.82rem;border-top:1px solid var(--line);margin-top:20px}
+footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="backdrop"><span class="glow g1"></span><span class="glow g2"></span></div>
+
+<div class="wrap">
+  <div class="topbar"><a href="index.html" class="back">← Back to portfolio</a></div>
+
+  <header>
+    <span class="eyebrow">Case Study · Credit Risk</span>
+    <h1>Lending Club Credit-Risk Analysis</h1>
+    <p class="sub">What drives a loan to default — and how much money is actually at risk? An end-to-end analysis of 1.3M real loans, from raw data to an AI-written risk memo.</p>
+
+    <div class="kpis">
+      <div class="kpi"><div class="n">1.3M</div><div class="l">loans analysed</div></div>
+      <div class="kpi"><div class="n">$18.76B</div><div class="l">total lent</div></div>
+      <div class="kpi risk"><div class="n">$4.06B</div><div class="l">at risk (21.6%)</div></div>
+      <div class="kpi risk"><div class="n">8×</div><div class="l">G vs A default risk</div></div>
+    </div>
+  </header>
+
+  <section class="block">
+    <h2>📌 The problem</h2>
+    <ul class="pts">
+      <li>Lending Club is a peer-to-peer lender — the entire business rests on <b>predicting who repays and who doesn't</b>.</li>
+      <li>Two questions a credit team actually asks: does the A–G grading <b>really</b> sort risk, and how much money is <b>genuinely exposed</b> — in dollars, not percentages?</li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>🔧 What I did</h2>
+    <ul class="pts">
+      <li>Cleaned <b>2.26M raw loans → 1.3M analysis-ready rows</b>: fixed text-stored types, triaged missing values by size, dropped junk (e.g. negative debt ratios, placeholder caps).</li>
+      <li>Avoided <b>data leakage</b> — kept only ~22 features knowable <b>at approval time</b>, so findings would hold for real future loans.</li>
+      <li>Built interactive dashboards in <b>Power BI &amp; Tableau</b>, then added an <b>AI insight layer</b> in Python.</li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>📊 What I found</h2>
+    <ul class="pts">
+      <li>The grading system works: default climbs cleanly <b>6% (A) → 50% (G)</b> — Grade G defaults <b>8× more often</b> than Grade A.</li>
+      <li>A pricing tension: Grade G defaults <b>50%</b> of the time but is charged only <b>~28%</b> interest — is that enough to cover the losses?</li>
+      <li>Loan term matters: <b>60-month loans default 33%</b> vs <b>16%</b> for 36-month — double the risk.</li>
+      <li>Why someone borrows predicts repayment: <b>small business 30%</b> (riskiest) vs <b>weddings 12%</b> (safest).</li>
+      <li>The surprise: <b>employment length barely differs</b> between defaulters and repayers — it does <b>not</b> predict default.</li>
+      <li>The dollar view is scarier than the count view: <b>21.6% of money</b> is at risk vs ~20% of loans — defaulted loans skew larger.</li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>🤖 AI insight layer</h2>
+    <div class="ai">
+      <div class="tag">Auto-generated from the real numbers · Llama 3.3 via Groq</div>
+      <blockquote>"The default rate increases sharply as loan grade deteriorates, with the riskiest grade G loans defaulting at 50.09%, more than 8 times the 6.09% rate of grade A. The total lent to the four riskiest grades (D–G) is approximately $2.25 billion, exposing a significant portion of the portfolio to high default risk. To mitigate this, I recommend immediately increasing reserve requirements for grades D, E, F, and G by at least 20%."</blockquote>
+      <div class="flow">pandas facts table → LLM prompt (role + data + format) → executive takeaway</div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>✅ Insights for change</h2>
+    <ul class="pts change">
+      <li><b>Re-price or tighten approval on F/G grades</b> — 28% interest can't cover a 50% default rate.</li>
+      <li><b>Treat 60-month loans as a separate, higher-risk tier</b> — they default at double the rate.</li>
+      <li><b>Add loan purpose to risk scoring</b> — small-business loans need extra scrutiny or collateral.</li>
+      <li><b>Stop weighting employment length</b> as a default signal — the data says it doesn't discriminate.</li>
+      <li><b>Raise reserves on grades D–G</b> (AI-flagged) — ~$2.25B of exposure sits there.</li>
+    </ul>
+    <div class="impact">
+      <b>The difference this makes:</b> the project doesn't stop at "30% of loans default." It pinpoints <b>which</b> loans, quantifies the <b>$4.06B</b> at stake, and hands a credit team <b>specific, testable changes</b> — the jump from describing the past to changing the outcome.
+    </div>
+  </section>
+
+  <div class="links">
+    <a class="lnk primary" href="https://public.tableau.com/app/profile/nirmala.choudhary/viz/LendingClubCredit-RiskAnalysis/Dashboard1" target="_blank" rel="noopener">↗ Live Dashboard</a>
+    <a class="lnk" href="https://github.com/nikita1-pixel/lending-club-credit-risk" target="_blank" rel="noopener">↗ Full report &amp; code</a>
+    <a class="lnk" href="index.html">← Back to portfolio</a>
+  </div>
+
+  <footer>
+    Built by <a href="index.html">Nirmala Choudhary</a> — Data Analyst · Python · SQL · Power BI · Tableau
+  </footer>
+</div>
+</body>
+</html>

@@ -65,3 +65,8 @@ Format per phase: **Why → Concepts → Build → Checkpoint.**
 - **Pick one:** web scraping (`requests` + `BeautifulSoup`) · an **API client** (hit a real API, parse JSON) · a **Streamlit** mini-dashboard · a CLI app · a small bot.
 - **Build:** the portfolio project, committed to GitHub with a README.
 - **Checkpoint:** demo it; explain the code end-to-end.
+
+---
+
+## 🤖 AI Engineer Roadmap (0 → hero)  → `ai-engineer-roadmap.md`
+Nikita's personal path to **AI Application Engineer** (build products *with* LLMs). Starts from where she actually is (~end of ML fundamentals), not zero. Milestones: **M2 ML math → M3 ML fundamentals → M4 light DL/transformers → M5 LLM apps → M6 RAG & vector DBs → M7 agents**, carried by one "Chat With Your Docs" capstone. ~3-4 months. Deliberately skips deep PyTorch + inference engineering.
